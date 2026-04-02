@@ -1,0 +1,7 @@
+{
+  "name": "A.R. Kalekar Polytechnic Clone & AI Assistant",
+  "description": "A high-fidelity clone of A.R. Kalekar Polytechnic's website featuring an AI-powered chatbot and a real-time voice assistant for institutional inquiries.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

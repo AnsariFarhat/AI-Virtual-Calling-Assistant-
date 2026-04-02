@@ -1,23 +1,42 @@
-import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig, Plugin } from "vite";
+import react from "@vitejs/plugin-react-swc";
+import path from "path";
+import { createServer } from "./server";
 
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    return {
-      server: {
-        port: 3000,
-        host: '0.0.0.0',
-      },
-      plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, '.'),
-        }
-      }
-    };
-});
+export default defineConfig(() => ({
+  root: "client",
+
+  server: {
+    host: "::",
+    port: 8080,
+    fs: {
+      // ✅ paths are now RELATIVE TO client/
+      allow: ["." , "../shared"],
+      deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "../server/**"],
+    },
+  },
+
+  build: {
+    outDir: "../dist/spa",
+  },
+
+  plugins: [react(), expressPlugin()],
+
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./client"),
+      "@shared": path.resolve(__dirname, "./shared"),
+    },
+  },
+}));
+
+function expressPlugin(): Plugin {
+  return {
+    name: "express-plugin",
+    apply: "serve",
+    configureServer(server) {
+      const app = createServer();
+      server.middlewares.use(app);
+    },
+  };
+}
